@@ -23,6 +23,7 @@ db.serialize(function(){
 });
 
 (function(){
+    var i = 0;
     //初始化目录数组
     var paths = [config.path.apk,config.path.ipa,config.path.attachments];
     //初始化目录
