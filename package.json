@@ -1,7 +1,7 @@
 {
   "name": "mailPro",
   "version": "1.0.0",
-  "description": "",
+  "description": "邮件解析",
   "main": "index.js",
   "directories": {
     "test": "test"
