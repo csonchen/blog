@@ -81,8 +81,6 @@ var Util = {
   },
 
   copy: function (apkPathArray, ipaPathArray) {
-    console.log(apkPathArray);
-    console.log(ipaPathArray);
     var apkArr = apkPathArray
       , ipaArr = ipaPathArray
       , readable, writable;
@@ -113,7 +111,7 @@ var Util = {
         Util.walk(path + '/' + item);
       } else {
         // 文件后缀
-        var suf = item.split('.')[1];
+        var suf = item.substring(item.lastIndexOf('.') + 1);
         if (suf === 'apk') { // android
           Util.apkPathList.push(path + '/' + item);
           Util.apkList.push(item);
