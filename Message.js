@@ -3,8 +3,8 @@
  */
 var Imap = require('imap')
   , inspect = require('util').inspect
-  , item = require('./item')
-  , Util = require('./Util');
+  , Util = require('./Util')
+  , DB = require('./DB');
 
 var Message = {
   subject: 0,
@@ -21,14 +21,14 @@ var Message = {
     stream.once('end', function () {
       //记录发送人地址
       var from = inspect(Imap.parseHeader(buffer).from);
-      from = Util.splitMailAdr(from);
-      this.froms = from + ',' + this.froms;
+      from = Util.splitMailAdr(from)[0];
+      Message.froms = from + ',' + Message.froms;
       //记录邮件主题
-      this.subject = inspect(Imap.parseHeader(buffer).subject);
+      Message.subject = inspect(Imap.parseHeader(buffer).subject);
     });
   },
 
-  msgAttrHandler: function (prefix, attrs, imap) {
+  msgAttrHandler: function (prefix, attrs, imap, db) {
     // 查找附件
     var attachments = Util.findAttachmentParts(attrs.struct);
     console.log(prefix + 'Has attachments: %d', attachments.length);
@@ -41,7 +41,7 @@ var Message = {
         bodies: [attachment.partID],
         struct: true
       });
-      f.on('message', Util.buildAttMessageFunction(attachment));
+      f.on('message', Util.buildAttMessageFunction(attachment, db));
     }
   },
 
@@ -59,10 +59,9 @@ var Message = {
         } else {
           runid = res.maxid + 1;
         }
-        var stmt = db.prepare('INSERT INTO mail(runid,status,subject) ' +
-        'values(?,?,?);');
-        stmt.run([runid, this.mailStatus, this.subject]);
-        stmt.finalize();
+
+        // 插入邮件表
+        DB.saveMail(db, runid, Message.mailStatus, Message.subject);
       });
     });
     console.log(prefix + 'Finished email.');

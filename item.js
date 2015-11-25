@@ -6,14 +6,14 @@
 var Imap = require('imap')
   , nodemailer = require('nodemailer')
   , config = require('./config')
-  , Message = require('./Message');
+  , Message = require('./Message')
+  , DB = require('./DB');
 
 var item = {
   lastMailID: 1,
   status: 0,
   mailStatus: 0,
   subject: 0,
-  froms: '',
   startTime: '',
   endTime: '',
 
@@ -35,7 +35,7 @@ var item = {
 
     var mailOptions = {
       from: config.mailOptions.from,
-      to: froms,
+      to: Message.froms,
       subject: config.mailOptions.subject,
       text: config.mailOptions.text,
       html: config.mailOptions.html
@@ -51,12 +51,7 @@ var item = {
   },
 
   getFetch: function (imap, preLastMailID) {
-    //return imap.seq.fetch("" + preLastMailID + ":*", {
-    //  bodies: 'HEADER.FIELDS (FROM TO SUBJECT DATE)',
-    //  struct: true
-    //});
-
-    return imap.seq.fetch('815:*', {
+    return imap.seq.fetch("" + preLastMailID + ":*", {
       bodies: 'HEADER.FIELDS (FROM TO SUBJECT DATE)',
       struct: true
     });
@@ -72,7 +67,7 @@ var item = {
     });
 
     msg.once('attributes', function (attrs) {
-      Message.msgAttrHandler(prefix, attrs, imap);
+      Message.msgAttrHandler(prefix, attrs, imap, db);
     });
 
     msg.once('end', function () {
@@ -88,17 +83,13 @@ var item = {
   endFetHandler: function (imap, db) {
     console.log('Done fetching all messages!');
     //发送邮件
-    //item.sendMail();
+    item.sendMail();
     imap.end();
     //记录程序结束时间
     item.endTime = new Date().format('yyyy-MM-dd hh:mm:ss');
+
     //数据记录启动表
-    db.serialize(function () {
-      var stmt = db.prepare('INSERT INTO mailpro(start_time,end_time,last_mailID,status) ' +
-      'values(?,?,?,?);');
-      stmt.run([item.startTime, item.endTime, item.lastMailID, item.status]);
-      stmt.finalize();
-    });
+    DB.saveMailPro(db, item.startTime, item.endTime, item.lastMailID, item.status);
   }
 };
 
