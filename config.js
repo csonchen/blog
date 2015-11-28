@@ -9,7 +9,7 @@ module.exports = {
     },
     imap : {
         user: 'sheng.chen@dianjoy.com',
-        password: 'zj292096aa',
+        password: 'zj292096',
         host: 'imap.qq.com',
         port: 993,
         tls: true
