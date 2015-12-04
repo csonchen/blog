@@ -1,13 +1,13 @@
 /**
- * Created by chensheng on 15/11/23.
+ * Created by chensheng on 15/12/2.
  */
-
 // 模块加载
 var Imap = require('imap')
   , nodemailer = require('nodemailer')
-  , config = require('./config')
+  , config = require('../config.json')
   , Message = require('./Message')
-  , DB = require('./DB');
+  , DB = require('./DB')
+  , moment = require('moment');
 
 var item = {
   lastMailID: 1,
@@ -16,16 +16,6 @@ var item = {
   subject: 0,
   startTime: '',
   endTime: '',
-
-  getImap: function () {
-    return new Imap({
-      user: config.imap.user,
-      password: config.imap.password,
-      host: config.imap.host,
-      port: config.imap.port,
-      tls: config.imap.tls
-    });
-  },
 
   sendMail: function () {
     var transporter = nodemailer.createTransport({
@@ -50,16 +40,9 @@ var item = {
     });
   },
 
-  getFetch: function (imap, preLastMailID) {
-    return imap.seq.fetch("" + preLastMailID + ":*", {
-      bodies: 'HEADER.FIELDS (FROM TO SUBJECT DATE)',
-      struct: true
-    });
-  },
-
-  onFetHandler: function (fetch, db, imap, msg, seqno) {
+  onFetHandler: function (fetch, imap, msg, seqno) {
     var prefix = '(#' + seqno + ')';
-     //记录读取的邮件编号，会覆盖掉最后读取的邮件编号
+    //记录读取的邮件编号，会覆盖掉最后读取的邮件编号
     item.lastMailID = seqno;
 
     msg.on('body', function (stream, info) {
@@ -67,11 +50,11 @@ var item = {
     });
 
     msg.once('attributes', function (attrs) {
-      Message.msgAttrHandler(prefix, attrs, imap, db);
+      Message.msgAttrHandler(prefix, attrs, imap);
     });
 
     msg.once('end', function () {
-      Message.msgEndHandler(db, prefix);
+      Message.msgEndHandler(prefix);
     });
   },
 
@@ -80,16 +63,25 @@ var item = {
     console.log('Fetch error: ' + err);
   },
 
-  endFetHandler: function (imap, db) {
+  endFetHandler: function (imap) {
     console.log('Done fetching all messages!');
     //发送邮件
-    item.sendMail();
+    //item.sendMail();
     imap.end();
     //记录程序结束时间
-    item.endTime = new Date().format('yyyy-MM-dd hh:mm:ss');
+    item.endTime = moment().format('YYYY-MM-DD HH:mm:ss');
 
     //数据记录启动表
-    DB.saveMailPro(db, item.startTime, item.endTime, item.lastMailID, item.status);
+    var params = [item.startTime, item.endTime, item.lastMailID, item.status];
+    DB.saveMailPro(params);
+  },
+
+  setStartTime: function (startTime) {
+    item.startTime = startTime;
+  },
+
+  setStatus: function (status) {
+    item.status = status;
   }
 };
 

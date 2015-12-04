@@ -1,14 +1,15 @@
 /**
- * Created by chensheng on 15/11/24.
+ * Created by chensheng on 15/12/2.
  */
-// 模块加载
-var path = require('path')
-  , base64 = require('base64-stream')
-  , admZip = require('adm-zip')
+'use strict';
+
+var md5 = require('MD5')
+  , config = require('../config.json')
+  , path = require('path')
   , fs = require('fs')
-  , md5 = require('MD5')
-  , DB = require('./DB')
-  , config = require('./config');
+  , admZip = require('adm-zip')
+  , base64 = require('base64-stream')
+  , DB = require('./DB');
 
 var Util = {
   apkPathList: [],
@@ -16,9 +17,9 @@ var Util = {
   apkList: [],
   ipaList: [],
 
-  splitMailAdr: function (str) {
+  splitMailAdr: function (mailAdr) {
     var _ = /[\w\.]+@[\w\.]+/g;
-    return str.match(_);
+    return mailAdr.match(_);
   },
 
   encrypt: function (filename) {
@@ -31,7 +32,7 @@ var Util = {
       //获取subtype属性 'x-zip-compressed' : zip格式
       var subtype = struct[i].subtype;
       if (Array.isArray(struct[i])) {
-        this.findAttachmentParts(struct[i], attachments);
+        Util.findAttachmentParts(struct[i], attachments);
       } else {
         if (subtype && ['x-zip-compressed'].indexOf(subtype) > -1) {
           //添加附件
@@ -42,13 +43,14 @@ var Util = {
     return attachments;
   },
 
-  buildAttMessageFunction: function (attachment, db) {
-    //文件名
-    var filename = attachment.params.name;
-    var encoding = attachment.encoding;
-    //邮件附件保存路径
-    var outFilePath = path.normalize(config.path.attachments),//路径
-        outFile = outFilePath + '/' + filename;//文件全名
+  buildAttMessageFunction: function (attachment) {
+    // 文件名
+    var filename = attachment.params.name
+      , encoding = attachment.encoding;
+
+    // 邮件附件保存路径
+    var outFilePath = path.normalize(config.path.attachments) // 路径
+      , outFile = outFilePath + '/' + filename; // 文件全名
 
     return function (msg, seqno) {
       var prefix = '(#' + seqno + ') ';
@@ -61,7 +63,7 @@ var Util = {
         writeStream.on('finish', function () {
           console.log(prefix + 'Done writing to file %s', filename);
           //解压
-          Util.unZip(config.path.attachments + '/' + filename, db);
+          Util.unZip(config.path.attachments + '/' + filename);
         });
 
         //判断编码格式，转码输出
@@ -78,36 +80,34 @@ var Util = {
     };
   },
 
-  unZip: function (path, db) {
+  unZip: function (path) {
     var unzip = new admZip(path);
     // 解压zip文件，存在则自动覆盖
     unzip.extractAllTo(config.path.attachments, true);
     // 遍历目录，统计安装包（分离.zip后缀）
-    Util.walk(config.path.attachments, db);
+    Util.walk(config.path.attachments);
     // 复制文件
     Util.copy(Util.apkPathList, Util.ipaPathList);
   },
 
   copy: function (apkPathArray, ipaPathArray) {
-    var apkArr = apkPathArray
-      , ipaArr = ipaPathArray
-      , readable, writable;
+    var readable, writable;
     // 复制apk
-    for (var i = 0, len = apkArr.length; i < len; i++) {
+    for (var i = 0, len = apkPathArray.length; i < len; i++) {
       readable = fs.createReadStream(Util.apkPathList[i]);
       writable = fs.createWriteStream(config.path.apk + '/' + Util.apkList[i]);
       readable.pipe(writable);
     }
 
     // 复制ipa
-    for (var i = 0, len = ipaArr.length; i < len; i++) {
+    for (var i = 0, len = ipaPathArray.length; i < len; i++) {
       readable = fs.createReadStream(Util.ipaPathList[i]);
       writable = fs.createWriteStream(config.path.ipa + '/' + Util.ipaList[i]);
       readable.pipe(writable);
     }
   },
 
-  walk: function (path, db) {
+  walk: function (path) {
     // 当前目录
     var dirs = fs.readdirSync(path)
       , flag = '';
@@ -116,31 +116,31 @@ var Util = {
       flag = fs.statSync(path + '/' + item).isDirectory();
       // 判断是否为目录
       if (flag) {
-        Util.walk(path + '/' + item, db);
+        Util.walk(path + '/' + item);
       } else {
         // 文件后缀
         var suf = item.substring(item.lastIndexOf('.') + 1)
           , url = ''
           , code = '';
-        if (suf === 'apk') { // android
-          Util.apkPathList.push(path + '/' + item);
-          Util.apkList.push(item);
-
-          url = config.path.apk + '/' + item;
+        if (suf === 'apk' || suf === 'ipa') { // android or ios
+          if (suf === 'apk') {
+            Util.apkPathList.push(path + '/' + item);
+            Util.apkList.push(item);
+            url = config.path.apk + '/' + item;
+          } else {
+            Util.ipaPathList.push(path + '/' + item);
+            Util.ipaList.push(item);
+            url = config.path.ipa + '/' + item;
+          }
           code = Util.encrypt(item);
           // 保存到附件表
-          DB.saveAttachment(db, code, url);
-        } else if (suf === 'ipa') { // ios
-          Util.ipaPathList.push(path + '/' + item);
-          Util.ipaList.push(item);
-
-          url = config.path.ipa + '/' + item;
-          code = Util.encrypt(item);
-          // 保存到附件表
-          DB.saveAttachment(db, code, url);
+          var params = [code, url];
+          console.log(params);
+          DB.saveAttachment(params);
         }
       }
     });
   }
 };
+
 module.exports = Util;

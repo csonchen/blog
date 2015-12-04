@@ -1,5 +1,5 @@
 /**
- * Created by chensheng on 15/11/24.
+ * Created by chensheng on 15/12/2.
  */
 var Imap = require('imap')
   , inspect = require('util').inspect
@@ -11,7 +11,7 @@ var Message = {
   froms: '',
   mailStatus: 0,
 
-  msgOnHandler: function (stream, info) {
+  msgOnHandler: function (stream) {
     var buffer = '';
 
     stream.on('data', function (chunk) {
@@ -28,7 +28,7 @@ var Message = {
     });
   },
 
-  msgAttrHandler: function (prefix, attrs, imap, db) {
+  msgAttrHandler: function (prefix, attrs, imap) {
     // 查找附件
     var attachments = Util.findAttachmentParts(attrs.struct);
     console.log(prefix + 'Has attachments: %d', attachments.length);
@@ -41,29 +41,12 @@ var Message = {
         bodies: [attachment.partID],
         struct: true
       });
-      f.on('message', Util.buildAttMessageFunction(attachment, db));
+      f.on('message', Util.buildAttMessageFunction(attachment));
     }
   },
 
-  msgEndHandler: function (db, prefix) {
-    db.serialize(function () {
-      db.get('select max(id) as maxid from mailpro', function (err, res) {
-        if (err) {
-          throw err;
-        }
-        //当前启动表最后运行编号
-        var runid = res.maxid;
-        //判断是否为空表
-        if (runid === null) {
-          runid = 1;
-        } else {
-          runid = res.maxid + 1;
-        }
-
-        // 插入邮件表
-        DB.saveMail(db, runid, Message.mailStatus, Message.subject);
-      });
-    });
+  msgEndHandler: function (prefix) {
+    DB.saveMail();
     console.log(prefix + 'Finished email.');
   }
 };
