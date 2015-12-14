@@ -5,19 +5,62 @@
 var Imap = require('imap')
   , nodemailer = require('nodemailer')
   , config = require('../config.json')
-  , Message = require('./Message')
-  , DB = require('./DB')
+  , Message = require('./Message2')
+  , DBHelper = require('./DBHelper')
   , moment = require('moment');
 
-var item = {
-  lastMailID: 1,
-  status: 0,
-  mailStatus: 0,
-  subject: 0,
-  startTime: '',
-  endTime: '',
+class Item {
+  constructor(imap) {
+    this.imap = imap;
+    imap.once('ready', this.onReady.bind(this));
+    imap.once('error', this.errorFetch(this));
+    imap.once('end', this.endFetch.bind(this));
+  }
 
-  sendMail: function () {
+  onReady(imap) {
+    // 程序启动时间
+    var startTime = moment().format('YYYY-MM-DD HH:mm:ss');
+    Item.startTime = startTime;
+
+    imap.openBox('INBOX', true, function () {
+      var DB = DBHelper.getSqliteDB()
+        , sql = "SELECT * FROM mailpro ORDER BY id DESC LIMIT 1";
+      DB.get(sql, function (err, res) {
+        var preLastMailID = JSON.stringify(res.lastMailID);
+
+        //var fetch = imap.seq.fetch("" + preLastMailID + ":*", {
+        //  bodies: 'HEADER.FIELDS (FROM TO SUBJECT DATE)',
+        //  struct: true
+        //});
+
+        // 读取邮件操作
+        var fetch = imap.seq.fetch("843:*", {
+          bodies: 'HEADER.FIELDS (FROM TO SUBJECT DATE)',
+          struct: true
+        });
+
+        fetch.on('message', function (msg, seqno) {
+          Item.onFetHandler(fetch, imap, msg, seqno);
+        });
+
+        fetch.once('error', Item.errFetHandler);
+
+        fetch.once('end', function () {
+          Item.endFetHandler(imap);
+        });
+      });
+    });
+  }
+
+  endFetch() {
+    console.log('Connection ended');
+  }
+
+  errorFetch(err) {
+    console.log(err);
+  }
+
+  static sendMail() {
     var transporter = nodemailer.createTransport({
       service: config.nodemailer.service,
       auth: config.nodemailer.auth
@@ -38,51 +81,37 @@ var item = {
         console.log('Message sent: ' + info.response);
       }
     });
-  },
-
-  onFetHandler: function (fetch, imap, msg, seqno) {
-    var prefix = '(#' + seqno + ')';
-    //记录读取的邮件编号，会覆盖掉最后读取的邮件编号
-    item.lastMailID = seqno;
-
-    msg.on('body', function (stream, info) {
-      Message.msgOnHandler(stream, info);
-    });
-
-    msg.once('attributes', function (attrs) {
-      Message.msgAttrHandler(prefix, attrs, imap);
-    });
-
-    msg.once('end', function () {
-      Message.msgEndHandler(prefix);
-    });
-  },
-
-  errFetHandler: function (err) {
-    item.status = 1;
-    console.log('Fetch error: ' + err);
-  },
-
-  endFetHandler: function (imap) {
-    console.log('Done fetching all messages!');
-    //发送邮件
-    //item.sendMail();
-    imap.end();
-    //记录程序结束时间
-    item.endTime = moment().format('YYYY-MM-DD HH:mm:ss');
-
-    //数据记录启动表
-    var params = [item.startTime, item.endTime, item.lastMailID, item.status];
-    DB.saveMailPro(params);
-  },
-
-  setStartTime: function (startTime) {
-    item.startTime = startTime;
-  },
-
-  setStatus: function (status) {
-    item.status = status;
   }
-};
+}
 
-module.exports = item;
+//var item = {
+//  lastMailID: 1,
+//  status: 0,
+//  mailStatus: 0,
+//  subject: 0,
+//  startTime: '',
+//  endTime: '',
+//
+//
+//  onFetHandler: function (fetch, imap, msg, seqno) {
+//    var prefix = '(#' + seqno + ')';
+//    //记录读取的邮件编号，会覆盖掉最后读取的邮件编号
+//    item.lastMailID = seqno;
+//
+//    Message.prefix = prefix;
+//
+//    msg.on('body', function (stream, info) {
+//      //Message.msgOnHandler(stream, info);
+//    });
+//
+//    msg.once('attributes', function (attrs) {
+//      Message.msgAttrHandler(prefix, attrs, imap);
+//    });
+//
+//    msg.once('end', function () {
+//      Message.msgEndHandler(prefix);
+//    });
+//  },
+//};
+
+module.exports = Item;
