@@ -27,5 +27,6 @@ module.exports = {
         text : 'hello world',
         html : '<b>hello world.</b>'
     },
-    db : 'mail.db'
+    db : 'mail.db',
+    auther : 'csonchen'
 };
