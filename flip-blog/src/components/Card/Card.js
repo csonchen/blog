@@ -1,12 +1,13 @@
 import React from 'react'
 import './Card.css'
 
-const list = Array(3).fill().map((item, index) => index + 1)
+const list = Array(6).fill().map((item, index) => ({index}))
 let transArr = null
 // 0: add 1: delete
 let updateStatus = 0
 let activeIndex = 100000
 let activeList = null
+let zIndex = 1
 
 function getArrByLen(len) {
   return Array(len).fill().map(() => [0, 0])
@@ -17,6 +18,7 @@ export default class Card extends React.Component {
 
   state = {
     list,
+    animateStatus: 0,
   }
 
   onDelete = (e) => {
@@ -54,7 +56,18 @@ export default class Card extends React.Component {
         const rectInfo = itemEle.getBoundingClientRect()
         transArr[index + stepIndex][0] = transArr[index + stepIndex][0] - rectInfo.left
         transArr[index + stepIndex][1] = transArr[index + stepIndex][1] - rectInfo.top
+      
+        if (transArr[index + stepIndex][1] !== 0) {
+          this.state.list.some((v, k) => {
+            if (index + stepIndex + activeIndex === k) {
+              v.zIndex = zIndex++
+              return true
+            }
+            return false
+          })
+        }
       })
+      
       this.setState({
         animateStatus: 2
       })
@@ -87,7 +100,7 @@ export default class Card extends React.Component {
             }
           >
             <div className="card-head">
-              <p className="cd-title">Title {item}</p>
+              <p className="cd-title">Title {item.index}</p>
               <span className="cd-del" onClick={this.onDelete} data-current={index} data-type={1}>delete</span>
             </div>
 
