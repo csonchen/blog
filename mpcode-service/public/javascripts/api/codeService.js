@@ -16,6 +16,9 @@ const getMpCode = (accessToken) => {
   return new Promise((resolve, reject) => {
     postData('https://api.weixin.qq.com/wxa/getwxacode', {
       method: 'post',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
       params: {
         access_token: accessToken,
       },

@@ -2,11 +2,18 @@ const express = require('express');
 const { getAccessToken, getMpCode } = require('../public/javascripts/api/codeService');
 const router = express.Router();
 const { appid, secret } = require('../config');
+const fs = require('fs');
 
 (async () => {
   const accessToken = await getAccessToken(appid, secret)
-  const imgBuffer = await getMpCode(accessToken)
-  const base64Img = Buffer.from(imgBuffer).toString('base64')
+  const reqImgData = await getMpCode(accessToken)
+  const imgBuffer = Buffer.from(reqImgData, 'utf8')
+  // const base64Img = Buffer.from(imgBuffer).toString('base64')
+  fs.writeFile('./mpcode-service/public/1.jpeg', imgBuffer.toString(), (err) => {
+    if (err) {
+      console.error(err)
+    }
+  })
 })()
 
 /* GET home page. */
