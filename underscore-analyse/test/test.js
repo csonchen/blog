@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { initial, last } = require('../src/source/source');
+const { initial, last, compact } = require('../src/source/source');
 
 // set basedata
 const baseArray = [5,4,3,2,1]
@@ -26,6 +26,12 @@ describe('Array', function () {
     })
     it ('2. n == 2, 返回后两项组成的数组', function() {
       assert.deepEqual(last(baseArray, 2), [2,1])
+    })
+  })
+
+  describe('#compact()', function() {
+    it('1. 去掉false，0，"" 三种数据类型的元素', function() {
+      assert.deepEqual(compact([0, 1, false, '', 2, '3']), [1,2,'3'])
     })
   })
 });
