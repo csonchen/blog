@@ -82,15 +82,15 @@ _.each = function(obj, iteratee, context) {
   return obj
 }
 
-function flatten(array, shallow) {
+function flatten(array, shallow, strict, startIndex) {
   var output = [], idx = 0
-  for (let i = 0, len = array.length; i < len; i++) {
+  for (let i = startIndex || 0, len = array.length; i < len; i++) {
     let value = array[i]
 
     if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
       // 递归展开
       if (!shallow) {
-        value = flatten(value, shallow)
+        value = flatten(value, shallow, strict)
       }
 
       let j = 0, len = value.length
@@ -99,7 +99,7 @@ function flatten(array, shallow) {
       while(j < len) {
         output[idx++] = value[j++]
       }
-    } else {
+    } else if (!strict) {
       output[idx++] = value
     }
   }
@@ -108,6 +108,26 @@ function flatten(array, shallow) {
 
 _.flatten = function(array, shallow) {
   return flatten(array, shallow)
+}
+
+_.without = function(array) {
+  return _.difference(array, Array.prototype.slice.call(arguments, 1))
+}
+
+_.contains = function(obj, item) {
+  if (!isArrayLike(obj)) {
+    obj = _.values(obj)
+  }
+
+  return obj.indexOf(item) >= 0
+}
+
+_.difference = function(array) {
+  var rest = flatten(arguments, true, true, 1)
+
+  return _.filter(array, function(value) {
+    return !_.contains(rest, value)
+  })
 }
 
 module.exports = _

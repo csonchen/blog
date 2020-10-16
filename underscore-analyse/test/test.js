@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { initial, last, compact, flatten } = require('../src/source/source');
+const { initial, last, compact, flatten, without } = require('../src/source/source');
 
 // set basedata
 const baseArray = [5,4,3,2,1]
@@ -41,6 +41,12 @@ describe('Array', function () {
     })
     it('2. shallow: true, 只展开第一层数组', function() {
       assert.deepEqual(flatten([1, [2], [3, [4]]], true), [1, 2, 3, [4]])
+    })
+  })
+
+  describe('#without', function() {
+    it('剔除元素 —— 单项', function() {
+      assert.deepEqual(without([1,2,3,0,1,2,3], 0, 1), [2,3,2,3])
     })
   })
 });

@@ -22,4 +22,7 @@ result = _.compact([0, 1, false, '', 2, '3'])
 // _flatten
 result = _.flatten([1, [2], [3, [4]]])
 
+// _.without
+result = _.without([1,2,3,0,1,2,3], 0, 1)
+
 console.log(result)
