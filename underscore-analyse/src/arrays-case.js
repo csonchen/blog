@@ -19,4 +19,7 @@ result = _.rest(base)
 // _conpact
 result = _.compact([0, 1, false, '', 2, '3'])
 
+// _flatten
+result = _.flatten([1, [2], [3, [4]]])
+
 console.log(result)

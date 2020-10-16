@@ -52,6 +52,18 @@ function isArrayLike(obj) {
   return obj.length && typeof obj.length == 'number' && obj.length >= 0
 }
 
+_.isArray = function(obj) {
+  return Object.prototype.toString.call(obj) === '[object Array]'
+}
+
+_.isArguments = function(obj) {
+  return _.has(obj, 'callee')
+}
+
+_.has = function(obj, key) {
+  return obj != null && Object.prototype.hasOwnProperty.call(obj, key)
+}
+
 _.each = function(obj, iteratee, context) {
   // iteratee = optimizeCb(iteratee, context)
 
@@ -68,6 +80,34 @@ _.each = function(obj, iteratee, context) {
   }
 
   return obj
+}
+
+function flatten(array, shallow) {
+  var output = [], idx = 0
+  for (let i = 0, len = array.length; i < len; i++) {
+    let value = array[i]
+
+    if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
+      // 递归展开
+      if (!shallow) {
+        value = flatten(value, shallow)
+      }
+
+      let j = 0, len = value.length
+      output.length += len
+
+      while(j < len) {
+        output[idx++] = value[j++]
+      }
+    } else {
+      output[idx++] = value
+    }
+  }
+  return output
+}
+
+_.flatten = function(array, shallow) {
+  return flatten(array, shallow)
 }
 
 module.exports = _

@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { initial, last, compact } = require('../src/source/source');
+const { initial, last, compact, flatten } = require('../src/source/source');
 
 // set basedata
 const baseArray = [5,4,3,2,1]
@@ -32,6 +32,15 @@ describe('Array', function () {
   describe('#compact()', function() {
     it('1. 去掉false，0，"" 三种数据类型的元素', function() {
       assert.deepEqual(compact([0, 1, false, '', 2, '3']), [1,2,'3'])
+    })
+  })
+
+  describe('#flatten', function() {
+    it('1. 全部展示数组元素，组成一维数组', function() {
+      assert.deepEqual(flatten([1, [2], [3, [4]]]), [1,2,3,4])
+    })
+    it('2. shallow: true, 只展开第一层数组', function() {
+      assert.deepEqual(flatten([1, [2], [3, [4]]], true), [1, 2, 3, [4]])
     })
   })
 });
