@@ -1,4 +1,4 @@
-function dp1(n) {
+function climbStairs(n) {
   const dps = []
   dps[0] = 0
   dps[1] = 1
@@ -10,5 +10,5 @@ function dp1(n) {
 }
 
 module.exports = {
-  dp1,
+  climbStairs,
 }
