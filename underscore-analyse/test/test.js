@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { initial, last, compact, flatten, without } = require('../src/source/source');
+const { initial, last, compact, flatten, without, range } = require('../src/source/source');
 
 // set basedata
 const baseArray = [5,4,3,2,1]
@@ -47,6 +47,12 @@ describe('Array', function () {
   describe('#without', function() {
     it('剔除元素 —— 单项', function() {
       assert.deepEqual(without([1,2,3,0,1,2,3], 0, 1), [2,3,2,3])
+    })
+  })
+
+  describe('#range', function() {
+    it('入参5，生成0 - 4的数组', function() {
+      assert.deepEqual(range(5), [0,1,2,3,4])
     })
   })
 });

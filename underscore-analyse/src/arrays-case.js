@@ -25,4 +25,12 @@ result = _.flatten([1, [2], [3, [4]]])
 // _.without
 result = _.without([1,2,3,0,1,2,3], 0, 1)
 
+// _.range
+result = _.range(10, 2)
+
+// _.sortedIndex
+result = _.sortedIndex([10, 20, 30, 40], 35)
+const stooges = [{name: 'moe', age: 40}, {name: 'curly', age: 60}]
+result = _.sortedIndex(stooges, {name: 'cc', age: 44}, 'age')
+
 console.log(result)
