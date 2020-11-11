@@ -1,0 +1,15 @@
+{
+  "name": "service",
+  "version": "1.0.0",
+  "description": "生成微信小程序码接口服务",
+  "main": "index.js",
+  "scripts": {
+    "server": "nodemon ./src/app.js"
+  },
+  "author": "csonchen",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "nodemon": "^2.0.6"
+  }
+}
