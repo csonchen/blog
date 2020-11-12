@@ -1,25 +1,30 @@
 import React from 'react'
-import { Button, Col, Form } from 'react-bootstrap'
+import { Button, Col, Form, Spinner } from 'react-bootstrap'
 import './styles/bootstrap.mini.css';
 import './App.css';
 
 export default class App extends React.Component {
   state = {
+    isLoading: false,
     previewCodeImg: ''
   }
 
   buildPreviewCode = () => {
+    this.setState({ isLoading: true })
     fetch('/api/preview')
       .then(res => res.json())
       .then(res => {
         const { previewImg } = res.data
         this.setState({
+          isLoading: false,
           previewCodeImg: previewImg,
         })
       })  
   }
 
   render() {
+    const { isLoading, previewCodeImg } = this.state
+
     return (
       <div>
         <h3>自动化构建微信小程序服务</h3>
@@ -51,10 +56,24 @@ export default class App extends React.Component {
           </Form.Row>                
         </Form.Group>
   
-        <Button variant="primary" onClick={this.buildPreviewCode}>点击构建并生成预览码</Button>
-        {this.state.previewCodeImg &&
-        <img className="mpCodeImg" src={this.state.previewCodeImg} alt="" />
-        }
+        <div className="flexMiddle">
+          <Button 
+            className="flexMiddle"
+            variant="primary" 
+            onClick={!isLoading ? this.buildPreviewCode : null}
+            disabled={isLoading}
+          >
+            {isLoading && 
+            <Spinner className="spinBtn" as="span" animation="border" size="sm" role="status" aria-hidden="true"/>
+            }
+            <span>点击构建并生成预览码</span>
+          </Button>
+
+          {previewCodeImg &&
+          <img className="mpCodeImg" src={previewCodeImg} alt="" />
+          }
+        </div>
+
       </div>
     )
   }
