@@ -2,58 +2,75 @@ import React from 'react'
 import { Button, Col, Form, Spinner } from 'react-bootstrap'
 import './styles/bootstrap.mini.css';
 import './App.css';
+import { postData } from './services/request';
 
 export default class App extends React.Component {
+  pagePath = 'pages/index/index'
+  queryParamStr = ''
+
   state = {
     isLoading: false,
-    previewCodeImg: ''
+    previewCodeImg: '',
   }
 
   buildPreviewCode = () => {
+    console.log(this.pagePath)
     this.setState({ isLoading: true })
-    fetch('/api/preview')
-      .then(res => res.json())
-      .then(res => {
-        const { previewImg } = res.data
-        this.setState({
-          isLoading: false,
-          previewCodeImg: previewImg,
-        })
-      })  
-  }
 
+    // 请求生成预览码接口
+    postData('/api/preview', {
+      method: 'POST',
+      params: {
+        pagePath: this.pagePath,
+        queryParamStr: this.queryParamStr,
+      }
+    }).then(res => {
+      const { previewImg } = res.data
+      this.setState({
+        isLoading: false,
+        previewCodeImg: previewImg,
+      })
+    })
+  }
+  onPagePathChange = (e) => {
+    const value = e.target.value
+    this.pagePath = value
+  }
+  onQueryChange = (e) => {
+    const value = e.target.value
+    this.queryParamStr = value
+  }
   render() {
     const { isLoading, previewCodeImg } = this.state
 
     return (
       <div>
         <h3>自动化构建微信小程序服务</h3>
+        <h6>项目：微信小程序商城组件库</h6>
+        <h6>
+          项目地址：
+          <a href="https://github.com/csonchen/wx-mall-components" target="_">
+            https://github.com/csonchen/wx-mall-components
+          </a>
+        </h6>
         <br />
         <Form.Group>
           <Form.Row className="form-item">
             <Form.Label column lg={2}>
-              小程序appid
+              启动页面
             </Form.Label>
             <Col>
-              <Form.Control type="text" placeholder="Normal text" />
+              <Form.Control type="text" placeholder="如：pages/index/index" onChange={this.onPagePathChange}/>
             </Col>
           </Form.Row>
           <Form.Row className="form-item">
             <Form.Label column lg={2}>
-              AppScret
+              启动参数
             </Form.Label>
             <Col>
-              <Form.Control type="text" placeholder="Normal text" />
+              <Form.Control type="text" placeholder="如：name=sam&age=18" onChange={this.onQueryChange}/>
             </Col>
-          </Form.Row>
-          <Form.Row className="form-item">
-            <Form.Label column lg={2}>
-              页面地址
-            </Form.Label>
-            <Col>
-              <Form.Control type="text" placeholder="Normal text" />
-            </Col>
-          </Form.Row>                
+          </Form.Row>                      
         </Form.Group>
   
         <div className="flexMiddle">
@@ -73,7 +90,6 @@ export default class App extends React.Component {
           <img className="mpCodeImg" src={previewCodeImg} alt="" />
           }
         </div>
-
       </div>
     )
   }

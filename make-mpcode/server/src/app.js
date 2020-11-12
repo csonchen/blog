@@ -4,6 +4,9 @@ const app = express();
 const { APP_ID } = require('./config');
 const ci = require('miniprogram-ci');
 
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
 // test api
 app.get('/', (req, res) => res.send('hello world'))
 
@@ -11,7 +14,8 @@ app.get('/', (req, res) => res.send('hello world'))
 app.use('/static', express.static(path.join(__dirname, 'static')))
 
 // 构建小程序，生成预览码图片
-app.get('/api/preview', async (req, res) => {
+app.post('/api/preview', async (req, res) => {
+  const { pagePath, queryParamStr } = req.body
   const project = new ci.Project({
     appid: APP_ID,
     type: 'miniProgram',
