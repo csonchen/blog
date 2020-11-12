@@ -1,0 +1,3 @@
+[submodule ".\\make-mpcode\\wx-mall-components"]
+	path = .\\make-mpcode\\wx-mall-components
+	url = git@github.com:csonchen/wx-mall-components.git

@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.17.1",
+    "miniprogram-ci": "^1.0.83",
     "nodemon": "^2.0.6"
   }
 }
