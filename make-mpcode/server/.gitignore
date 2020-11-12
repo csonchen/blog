@@ -1,5 +1,6 @@
 # packages
 node_modules/*
 
-# keys
+# keys & config
 keys/*
+config.js
