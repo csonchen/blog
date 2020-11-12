@@ -38,6 +38,5 @@ app.get('/api/preview', async (req, res) => {
   })
 })
 
-
 const port = 5000;
 app.listen(port, () => console.log(`make mpcode service listen on port ${5000}`))
