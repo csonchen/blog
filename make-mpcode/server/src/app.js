@@ -4,6 +4,7 @@ const fs = require('fs');
 const app = express();
 const { APP_ID } = require('./config');
 const ci = require('miniprogram-ci');
+const { scenes } = require('./constant/scene');
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -13,6 +14,25 @@ app.get('/', (req, res) => res.send('hello world'))
 
 // 允许访问static目录资源
 app.use('/static', express.static(path.join(__dirname, 'static')))
+
+// 获取小程序初始配置（页面，场景值）
+app.get('/api/getAppInfo', async (req, res) => {
+  const mpProPath = path.resolve(__dirname, '../../wx-mall-components/dist')
+  const pageConfigFile = 'app.json'
+  // 读取app.json文件，获取pages
+  const fileContent = fs.readFileSync(`${mpProPath}/${pageConfigFile}`,'utf-8')
+  const pageResult = JSON.parse(fileContent)
+  // 读取场景值
+  const sceneList = scenes
+  res.json({
+    code: 200,
+    message: '操作成功',
+    data: {
+      pages: pageResult.pages,
+      scenes: sceneList,
+    }
+  })
+})
 
 // 获取小程序的所有页面配置
 app.get('/api/getAppPages', async (req, res) => {

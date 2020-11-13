@@ -17,6 +17,12 @@ code {
   background: #f7f7f7;
 }
 
+/*flex*/
+.flex-middle {
+  display: flex;
+  align-items: center;
+}
+
 /* sidebar */
 .bd-sidebar {
   position: sticky;
