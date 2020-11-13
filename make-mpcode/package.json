@@ -1,0 +1,19 @@
+{
+  "name": "make-mpcode",
+  "version": "1.0.0",
+  "description": "微信小程序自动化构建，生成预览测试，项目文件分析脚本分析等",
+  "main": "index.js",
+  "scripts": {
+    "client-install": "cd client & npm install",
+    "server-install": "cd server & npm install",
+    "client": "npm start --prefix client",
+    "server": "nodemon ./server/src/app.js"
+  },
+  "keywords": [
+    "小程序自动化构建",
+    "react",
+    "nodejs"
+  ],
+  "author": "csonchen",
+  "license": "MIT"
+}

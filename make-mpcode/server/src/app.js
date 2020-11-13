@@ -34,8 +34,8 @@ app.post('/api/preview', async (req, res) => {
   const project = new ci.Project({
     appid: APP_ID,
     type: 'miniProgram',
-    projectPath: '../wx-mall-components/dist',
-    privateKeyPath: 'keys/private.wx5a35be4e15614ade.key',
+    projectPath: 'wx-mall-components/dist',
+    privateKeyPath: 'server/keys/private.wx5a35be4e15614ade.key',
     ignores: ['node_modules/**/*'],
   })
   const { pagePath = "pages/index/index", searchQuery = '' } = req.body || {}
@@ -48,7 +48,7 @@ app.post('/api/preview', async (req, res) => {
     qrcodeFormat: 'image',
     pagePath,
     searchQuery,
-    qrcodeOutputDest: 'src/static/preview.jpg',
+    qrcodeOutputDest: 'server/src/static/preview.jpg',
     onProgressUpdate: console.log,
   })
   res.json({
