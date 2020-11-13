@@ -58,15 +58,6 @@ export default class BuildPreviewPage extends React.Component {
 
     return (
       <div>
-        <h3>自动化构建微信小程序服务</h3>
-        <h6>项目：微信小程序商城组件库</h6>
-        <h6>
-          项目地址：
-          <a href="https://github.com/csonchen/wx-mall-components" target="_">
-            https://github.com/csonchen/wx-mall-components
-          </a>
-        </h6>
-        <br />
         <Form.Group>
           <Form.Row className="form-item">
             <Form.Label column lg={1}>
