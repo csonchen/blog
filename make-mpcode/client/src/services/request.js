@@ -1,7 +1,6 @@
 export const postData = (url, data = {}) => {
   const { method = 'GET', params = {} } = data
-  return fetch(url, {
-    body: JSON.stringify(params),
+  const baseParams = {
     cache: 'no-cache',
     credentials: 'same-origin',
     headers: {
@@ -11,6 +10,10 @@ export const postData = (url, data = {}) => {
     mode: 'cors',
     redirect: 'follow',
     referrer: 'no-referrer'
-  })
+  }
+  if (method === 'POST') {
+    baseParams.body = JSON.stringify(params)
+  }
+  return fetch(url, baseParams)
   .then(response => response.json())
 }

@@ -6,15 +6,29 @@ import { postData } from './services/request';
 
 export default class App extends React.Component {
   pagePath = 'pages/index/index'
-  queryParamStr = ''
+  searchQuery = ''
 
   state = {
     isLoading: false,
     previewCodeImg: '',
+    selectPages: [],
   }
 
+  componentDidMount() {
+    this.fetchAllPages()
+  }
+  /**
+   * 获取小程序项目的所有页面
+   */
+  fetchAllPages = () => {
+    postData('/api/getAppPages').then(res => {
+      const { pages } = res.data
+      this.setState({
+        selectPages: pages,
+      })
+    })
+  }
   buildPreviewCode = () => {
-    console.log(this.pagePath)
     this.setState({ isLoading: true })
 
     // 请求生成预览码接口
@@ -22,7 +36,7 @@ export default class App extends React.Component {
       method: 'POST',
       params: {
         pagePath: this.pagePath,
-        queryParamStr: this.queryParamStr,
+        searchQuery: this.searchQuery,
       }
     }).then(res => {
       const { previewImg } = res.data
@@ -38,7 +52,7 @@ export default class App extends React.Component {
   }
   onQueryChange = (e) => {
     const value = e.target.value
-    this.queryParamStr = value
+    this.searchQuery = value
   }
   render() {
     const { isLoading, previewCodeImg } = this.state
@@ -60,7 +74,12 @@ export default class App extends React.Component {
               启动页面
             </Form.Label>
             <Col>
-              <Form.Control type="text" placeholder="如：pages/index/index" onChange={this.onPagePathChange}/>
+              <Form.Control list="pages" type="text" placeholder="如：pages/index/index" onChange={this.onPagePathChange} />
+              <datalist id="pages">
+                {this.state.selectPages.map((item, index) => (
+                <option key={index}>{item}</option>
+                ))}
+              </datalist>
             </Col>
           </Form.Row>
           <Form.Row className="form-item">
