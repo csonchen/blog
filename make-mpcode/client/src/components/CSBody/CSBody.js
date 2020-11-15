@@ -1,5 +1,7 @@
 import { Route, Switch } from 'react-router-dom'
 import BuildPreviewPage from '../../pages/BuildPreviewPage/BuildPreviewPage'
+import AnalyseImagesPage from '../../pages/AnalyseImagesPage/AnalyseImagesPage'
+import AnalyseComponentsPage from '../../pages/AnalyseComponentsPage/AnalyseComponentsPage'
 
 export default function CSBody() {
   return (
@@ -17,15 +19,9 @@ export default function CSBody() {
             </h6>
           </div>
         </Route>
-        <Route path="/build/preview">
-          <BuildPreviewPage />
-        </Route>
-        <Route path="/analyse/image">
-          <div>images</div>
-        </Route>
-        <Route path="/analyse/component">
-          <div>components...</div>
-        </Route>
+        <Route path="/build/preview" component={BuildPreviewPage} />
+        <Route path="/analyse/image" component={AnalyseImagesPage} />
+        <Route path="/analyse/component" component={AnalyseComponentsPage} />
       </Switch>
     </main>
   )
