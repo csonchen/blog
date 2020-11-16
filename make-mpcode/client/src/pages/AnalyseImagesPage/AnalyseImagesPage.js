@@ -1,11 +1,16 @@
 import React from 'react'
 import { Table, Form, Col, Button, Pagination, Spinner } from 'react-bootstrap'
 import { postData } from '../../services/request'
+import { range } from '../../tools/util'
 
 export default class AnalyseImagesPage extends React.Component {
+  PAGE_SIZE = 10
   state = {
     loading: false,
     imgList: [],
+    currentList: [],
+    currentPage: 1,
+    pages: [],
   }
   analyseImgs = () => {
     this.setState({
@@ -13,10 +18,26 @@ export default class AnalyseImagesPage extends React.Component {
     })
     postData('/api/analyse/images').then(res => {
       const { list: imgList } = res.data
+      const currentList = imgList.slice(0, 10)
+      const size = Math.ceil(imgList.length / this.PAGE_SIZE)
+      const pages = range(1, size)
       this.setState({
         imgList,
+        currentList,
+        pages,
         loading: false,
       })
+    })
+  }
+  queryByPage = (e) => {
+    const pageNum = e.target.dataset.page
+    const { imgList } = this.state
+    const begin = (+pageNum - 1) * this.PAGE_SIZE
+    const end = begin + this.PAGE_SIZE
+    const currentList = imgList.slice(begin, end)
+    this.setState({
+      currentPage: +pageNum,
+      currentList,
     })
   }
   render() {
@@ -53,7 +74,7 @@ export default class AnalyseImagesPage extends React.Component {
               </td>
             </tr>
             :
-            this.state.imgList.map((item, index) => (
+            this.state.currentList.map((item, index) => (
               <tr key={index}>
                 <td>{index + 1}</td>
                 <td>{item.image}</td>
@@ -64,10 +85,14 @@ export default class AnalyseImagesPage extends React.Component {
           </tbody>
         </Table>
         <div className="flex-end">
-          <Pagination>
-            <Pagination.Item active>1</Pagination.Item>
-            <Pagination.Item>2</Pagination.Item>
-            <Pagination.Item>3</Pagination.Item>
+          <Pagination onClick={this.queryByPage}>
+            {this.state.pages.map((page, index) => (
+            <Pagination.Item
+              data-page={page}
+              key={index} 
+              active={this.state.currentPage === page}
+            >{page}</Pagination.Item>
+            ))}
           </Pagination>
         </div>
       </div>
