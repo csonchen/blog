@@ -1,7 +1,24 @@
 import React from 'react'
-import { Table, Form, Col, Button, Pagination } from 'react-bootstrap'
+import { Table, Form, Col, Button, Pagination, Spinner } from 'react-bootstrap'
+import { postData } from '../../services/request'
 
 export default class AnalyseImagesPage extends React.Component {
+  state = {
+    loading: false,
+    imgList: [],
+  }
+  analyseImgs = () => {
+    this.setState({
+      loading: true,
+    })
+    postData('/api/analyse/images').then(res => {
+      const { list: imgList } = res.data
+      this.setState({
+        imgList,
+        loading: false,
+      })
+    })
+  }
   render() {
     return (
       <div>
@@ -14,7 +31,7 @@ export default class AnalyseImagesPage extends React.Component {
           </Form.Row>
 
           <div className="flex-end">
-            <Button className="mr10">开始分析</Button>
+            <Button className="mr10" onClick={this.analyseImgs}>开始分析</Button>
             <Button>导出</Button>
           </div>
         </Form.Group>
@@ -22,25 +39,28 @@ export default class AnalyseImagesPage extends React.Component {
           <thead>
             <tr>
               <th>#</th>
-              <th>名称</th>
+              <th>图片</th>
               <th>路径</th>
             </tr>
           </thead>
           <tbody>
+            {this.state.loading ?
             <tr>
-              <td>1</td>
-              <td>Otto</td>
-              <td>Otto</td>
+              <td colSpan="3" className="text-center">
+                <Spinner animation="border" variant="primary" role="status">
+                  <span className="sr-only">Loading...</span>
+                </Spinner>
+              </td>
             </tr>
-            <tr>
-              <td>2</td>
-              <td>Jacob</td>
-              <td>Jacob</td>
-            </tr>
-            <tr>
-              <td>3</td>
-              <td colSpan="2">Larry the Bird</td>
-            </tr>
+            :
+            this.state.imgList.map((item, index) => (
+              <tr key={index}>
+                <td>{index + 1}</td>
+                <td>{item.image}</td>
+                <td>{item.existPath}</td>
+              </tr>
+            ))
+            }
           </tbody>
         </Table>
         <div className="flex-end">

@@ -23,6 +23,11 @@ code {
   align-items: center;
 }
 
+.flex-center {
+  display: flex;
+  justify-content: center;
+}
+
 .flex-end {
   display: flex;
   justify-content: flex-end;
@@ -45,4 +50,9 @@ code {
 /* distance */
 .mr10 {
   margin-right: 10px;
+}
+
+/* text */
+.text-center {
+  text-align: center;
 }
