@@ -21,7 +21,7 @@ export default class BuildPreviewPage extends React.Component {
    * 获取小程序项目的所有页面
    */
   fetchAllPages = () => {
-    postData('/api/getAppInfo').then(res => {
+    postData('/api/build/getAppInfo').then(res => {
       const { pages, scenes } = res.data
       this.setState({
         selectPages: pages,
@@ -33,7 +33,7 @@ export default class BuildPreviewPage extends React.Component {
     this.setState({ isLoading: true })
 
     // 请求生成预览码接口
-    postData('/api/preview', {
+    postData('/api/build/preview', {
       method: 'POST',
       params: {
         pagePath: this.pagePath,

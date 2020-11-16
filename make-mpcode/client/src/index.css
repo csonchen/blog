@@ -23,6 +23,11 @@ code {
   align-items: center;
 }
 
+.flex-end {
+  display: flex;
+  justify-content: flex-end;
+}
+
 /* sidebar */
 .bd-sidebar {
   position: sticky;
@@ -34,4 +39,10 @@ code {
 .side-nav {
   border-top: 1px solid #ececec;
   width: 100%;
+}
+
+
+/* distance */
+.mr10 {
+  margin-right: 10px;
 }

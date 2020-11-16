@@ -13,5 +13,8 @@
     "express": "^4.17.1",
     "miniprogram-ci": "^1.0.83",
     "nodemon": "^2.0.6"
+  },
+  "devDependencies": {
+    "html2json": "^1.0.2"
   }
 }
