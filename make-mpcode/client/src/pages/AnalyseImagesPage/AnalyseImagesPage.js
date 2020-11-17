@@ -12,6 +12,7 @@ export default class AnalyseImagesPage extends React.Component {
     currentList: [],
     currentPage: 1,
     pages: [],
+    filterTitle: '全部'
   }
   analyseImgs = () => {
     this.setState({
@@ -43,15 +44,16 @@ export default class AnalyseImagesPage extends React.Component {
     })
   }
   filterOptions = (e) => {
-    const status = e.target.dataset.status
+    const { status, title } = e.target.dataset
 
-    if (typeof status === 'undefined') return
+    if (typeof status === 'undefined' && typeof title === 'undefined') return
 
     const filterList = this.originImgList.filter(item => item.status === +status)
     const currentList = filterList.slice(0, 10)
     const size = Math.ceil(filterList.length / this.PAGE_SIZE)
     const pages = range(1, size)
     this.setState({
+      filterTitle: title,
       imgList: filterList,
       currentList,
       pages,
@@ -77,10 +79,10 @@ export default class AnalyseImagesPage extends React.Component {
         <Form.Group>
           <Form.Row className="align-items-center">
             <Col>
-              <DropdownButton id="dropdown-basic-button" title="全部" onClick={this.filterOptions}>
-                <Dropdown.Item>全部</Dropdown.Item>
-                <Dropdown.Item data-status="1">用到</Dropdown.Item>
-                <Dropdown.Item data-status="0">没有用到</Dropdown.Item>
+              <DropdownButton id="dropdown-basic-button" title={this.state.filterTitle} onClick={this.filterOptions}>
+                <Dropdown.Item data-title="全部">全部</Dropdown.Item>
+                <Dropdown.Item data-status="1" data-title="用到">用到</Dropdown.Item>
+                <Dropdown.Item data-status="0" data-title="没有用到">没有用到</Dropdown.Item>
               </DropdownButton>
             </Col>
           </Form.Row>
