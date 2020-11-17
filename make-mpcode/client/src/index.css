@@ -19,7 +19,7 @@ code {
 
 /*flex*/
 .flex-middle {
-  display: flex;
+  display: flex!important;
   align-items: center;
 }
 
@@ -50,6 +50,9 @@ code {
 /* distance */
 .mr10 {
   margin-right: 10px;
+}
+.mr3 {
+  margin-right: 3px;
 }
 
 /* text */

@@ -1,5 +1,6 @@
 import React from 'react'
-import { Table, Form, Col, Button, Pagination, Spinner, DropdownButton, Dropdown } from 'react-bootstrap'
+import { Table, Form, Col, Pagination, Spinner, DropdownButton, Dropdown } from 'react-bootstrap'
+import LoadingButton from '../../components/LoadingButton/LoadingButton'
 import { postData } from '../../services/request'
 import { range } from '../../tools/util'
 
@@ -12,7 +13,8 @@ export default class AnalyseImagesPage extends React.Component {
     currentList: [],
     currentPage: 1,
     pages: [],
-    filterTitle: '全部'
+    filterTitle: '全部',
+    operateLoading: false,
   }
   analyseImgs = () => {
     this.setState({
@@ -29,7 +31,21 @@ export default class AnalyseImagesPage extends React.Component {
         currentList,
         pages,
         loading: false,
+        currentPage: 1,
+        filterTitle: '全部'
       })
+    })
+  }
+  exportCSVFile = () => {
+    this.setState({
+      operateLoading: true,
+    })
+    postData('/api/analyse/imagesExport').then(res => {
+      this.setState({
+        operateLoading: false,
+      })
+      const { file } = res.data
+      window.open(file)
     })
   }
   queryByPage = (e) => {
@@ -48,7 +64,7 @@ export default class AnalyseImagesPage extends React.Component {
 
     if (typeof status === 'undefined' && typeof title === 'undefined') return
 
-    const filterList = this.originImgList.filter(item => item.status === +status)
+    const filterList = status === "" ? this.originImgList : this.originImgList.filter(item => item.status === +status)
     const currentList = filterList.slice(0, 10)
     const size = Math.ceil(filterList.length / this.PAGE_SIZE)
     const pages = range(1, size)
@@ -61,6 +77,7 @@ export default class AnalyseImagesPage extends React.Component {
     })
   }
   render() {
+    const { loading, operateLoading } = this.state
     return (
       <div>
         <Form.Group>
@@ -72,15 +89,15 @@ export default class AnalyseImagesPage extends React.Component {
           </Form.Row>
 
           <div className="flex-end">
-            <Button className="mr10" onClick={this.analyseImgs}>开始分析</Button>
-            <Button>导出</Button>
+            <LoadingButton className="mr10" loading={loading} onClick={this.analyseImgs}>开始分析</LoadingButton>
+            <LoadingButton loading={operateLoading} onClick={this.exportCSVFile}>导出</LoadingButton>
           </div>
         </Form.Group>
         <Form.Group>
           <Form.Row className="align-items-center">
             <Col>
               <DropdownButton id="dropdown-basic-button" title={this.state.filterTitle} onClick={this.filterOptions}>
-                <Dropdown.Item data-title="全部">全部</Dropdown.Item>
+                <Dropdown.Item data-status="" data-title="全部">全部</Dropdown.Item>
                 <Dropdown.Item data-status="1" data-title="用到">用到</Dropdown.Item>
                 <Dropdown.Item data-status="0" data-title="没有用到">没有用到</Dropdown.Item>
               </DropdownButton>

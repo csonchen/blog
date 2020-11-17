@@ -1,5 +1,6 @@
 import React from 'react'
-import { Button, Col, Form, Spinner } from 'react-bootstrap'
+import { Col, Form } from 'react-bootstrap'
+import LoadingButton from '../../components/LoadingButton/LoadingButton';
 import { postData } from '../../services/request';
 import './BuildPreviewPage.css';
 
@@ -13,13 +14,9 @@ export default class BuildPreviewPage extends React.Component {
     selectPages: [],
     scenes: [],
   }
-
   componentDidMount() {
     this.fetchAllPages()
   }
-  /**
-   * 获取小程序项目的所有页面
-   */
   fetchAllPages = () => {
     postData('/api/build/getAppInfo').then(res => {
       const { pages, scenes } = res.data
@@ -101,18 +98,7 @@ export default class BuildPreviewPage extends React.Component {
         </Form.Group>
   
         <div className="flexMiddle">
-          <Button 
-            className="flexMiddle"
-            variant="primary" 
-            onClick={!isLoading ? this.buildPreviewCode : null}
-            disabled={isLoading}
-          >
-            {isLoading && 
-            <Spinner className="spinBtn" as="span" animation="border" size="sm" role="status" aria-hidden="true"/>
-            }
-            <span>点击构建并生成预览码</span>
-          </Button>
-
+          <LoadingButton loading={isLoading} onClick={this.buildPreviewCode}>点击构建并生成预览码</LoadingButton>
           {previewCodeImg &&
           <img className="mpCodeImg" src={previewCodeImg} alt="" />
           }
