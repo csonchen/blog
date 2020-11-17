@@ -1,10 +1,11 @@
 import React from 'react'
-import { Table, Form, Col, Button, Pagination, Spinner } from 'react-bootstrap'
+import { Table, Form, Col, Button, Pagination, Spinner, DropdownButton, Dropdown } from 'react-bootstrap'
 import { postData } from '../../services/request'
 import { range } from '../../tools/util'
 
 export default class AnalyseImagesPage extends React.Component {
   PAGE_SIZE = 10
+  originImgList = [] // 初始请求接口的列表数据
   state = {
     loading: false,
     imgList: [],
@@ -18,6 +19,7 @@ export default class AnalyseImagesPage extends React.Component {
     })
     postData('/api/analyse/images').then(res => {
       const { list: imgList } = res.data
+      this.originImgList = imgList
       const currentList = imgList.slice(0, 10)
       const size = Math.ceil(imgList.length / this.PAGE_SIZE)
       const pages = range(1, size)
@@ -40,11 +42,27 @@ export default class AnalyseImagesPage extends React.Component {
       currentList,
     })
   }
+  filterOptions = (e) => {
+    const status = e.target.dataset.status
+
+    if (typeof status === 'undefined') return
+
+    const filterList = this.originImgList.filter(item => item.status === +status)
+    const currentList = filterList.slice(0, 10)
+    const size = Math.ceil(filterList.length / this.PAGE_SIZE)
+    const pages = range(1, size)
+    this.setState({
+      imgList: filterList,
+      currentList,
+      pages,
+      currentPage: 1,
+    })
+  }
   render() {
     return (
       <div>
         <Form.Group>
-          <Form.Row className="form-item justify-content-md-center">
+          <Form.Row className="form-item align-items-center">
             <Form.Label column lg={1}>主包</Form.Label>
             <Col>
               <Form.Control type="text" placeholder="" />
@@ -56,10 +74,21 @@ export default class AnalyseImagesPage extends React.Component {
             <Button>导出</Button>
           </div>
         </Form.Group>
+        <Form.Group>
+          <Form.Row className="align-items-center">
+            <Col>
+              <DropdownButton id="dropdown-basic-button" title="全部" onClick={this.filterOptions}>
+                <Dropdown.Item>全部</Dropdown.Item>
+                <Dropdown.Item data-status="1">用到</Dropdown.Item>
+                <Dropdown.Item data-status="0">没有用到</Dropdown.Item>
+              </DropdownButton>
+            </Col>
+          </Form.Row>
+        </Form.Group>
         <Table striped bordered hover>
           <thead>
             <tr>
-              <th>#</th>
+              <th>序号</th>
               <th>图片</th>
               <th>路径</th>
             </tr>
@@ -76,7 +105,7 @@ export default class AnalyseImagesPage extends React.Component {
             :
             this.state.currentList.map((item, index) => (
               <tr key={index}>
-                <td>{index + 1}</td>
+                <td>{item.id}</td>
                 <td>{item.image}</td>
                 <td>{item.existPath}</td>
               </tr>

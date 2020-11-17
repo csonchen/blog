@@ -30,19 +30,24 @@ const analyseImages = (imgDirSrc, sourceDir, sources) => {
   }, [])
 
   // 遍历图片集数组，查找文件是否有引入
+  let imgIdx = 1
   const result = allImageFiles.reduce((acc, imgName) => {
     const rowItems = allWxmlFiles.reduce((childAcc, filePath) => {
       const fileStr = fs.readFileSync(filePath, 'utf8')
       return fileStr.indexOf(imgName) === -1 ? childAcc : [...childAcc, {
+        id: imgIdx++,
         image: imgName,
         existPath: filePath,
+        status: 1,
       }]
     }, [])
     
     // 如果查找完毕为空，则说明没有引入到该图片
     return rowItems.length === 0 ? [...acc, {
+      id: imgIdx++,
       image: imgName,
-      existPath: '没有用到'
+      existPath: '没有用到',
+      status: 0,
     }] : [...acc, ...rowItems]
   }, [])
 
