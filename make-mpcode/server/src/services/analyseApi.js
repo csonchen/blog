@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
-const { getAllFiles } = require('../tools/fileUtils');
+const { getAllFiles, listComponents, getFileJsonData } = require('../tools/fileUtils');
+const { isWxmlImportComponent } = require('../tools/parseUtils');
 
 /**
  * 分析图片文件在项目的引入情况
@@ -54,6 +55,49 @@ const analyseImages = (imgDirSrc, sourceDir, sources) => {
   return result
 }
 
+/**
+ * 分析项目组件引入情况
+ * @param {*} compDirSrc 
+ */
+const analyseComponents = (compDirSrc) => {
+  // 解析入口目录
+  const entryDir = path.resolve(compDirSrc)
+  const allFiles = getAllFiles(entryDir)
+
+  if (allFiles.length === 0) return
+
+  // 组装导出对象数组数据
+  const pageWithComponents = filterFiles.reduce((acc, { jsonFile }) => {
+    const current = path.basename(jsonFile, '.json')
+    const currentDir = path.dirname(jsonFile)
+    const components = listComponents(jsonFile) || []
+
+    if (components.length == 0) {
+      return [...acc, { 
+        page: current, 
+        directory: currentDir,
+      }]
+    } else {
+      // 输入wxml地址，转化为json标签对象
+      const fileJsonData = getFileJsonData(currentDir + `/${current}.wxml`)
+      const childs = components.reduce((childAcc, { name, path }) => {
+        const used = isWxmlImportComponent(fileJsonData, name)
+        return [...childAcc, {
+          page: current,
+          directory: currentDir,
+          component: name,
+          componentPath: path,
+          used: used ? 'true' : 'false',
+        }]
+      }, [])
+      return [...acc, ...childs]
+    }
+  }, [])
+
+  return pageWithComponents
+}
+
 module.exports = {
   analyseImages,
+  analyseComponents,
 }

@@ -3,15 +3,10 @@ const router = express.Router();
 const path = require('path');
 const { analyseImages } = require('../services/analyseApi');
 const ObjectsToCsv = require('objects-to-csv');
-const {
-  image: {
-    entry,
-    sources,
-    exportPath,
-  }
-} = require('../config');
+const { image, component } = require('../config');
 
 router.get('/images', (req, res) => {
+  const { entry, sources } = image
   const sourceDir = __dirname + '/../../../'
   const imgSourceDir = sourceDir + entry
   const resData = analyseImages(imgSourceDir, sourceDir, sources)
@@ -20,7 +15,7 @@ router.get('/images', (req, res) => {
     code: 200,
     message: '操作成功',
     data: {
-      list: resData
+      list: resData,
     }
   })
 })
@@ -40,6 +35,21 @@ router.get('/imagesExport', async (req, res) => {
     message: '操作成功',
     data: {
       file: 'http://localhost:5000/static/csv/test.csv',
+    }
+  })
+})
+
+router.get('/components', (req, res) => {
+  const { entry } = component
+  const sourceDir = __dirname = '/../../../'
+  const compSourceDir = sourceDir + entry
+  const resData = analyseComponents(compSourceDir)
+
+  res.json({
+    code: 200,
+    message: '操作成功',
+    data: {
+      list: resData,
     }
   })
 })
