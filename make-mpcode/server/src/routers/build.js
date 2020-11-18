@@ -5,6 +5,7 @@ const fs = require('fs');
 const ci = require('miniprogram-ci');
 const { scenes } = require('../constant/scene');
 const { APP_ID } = require('../config');
+const config = require('../config');
 
 // 获取小程序初始配置（页面，场景值）
 router.get('/getAppInfo', (req, res) => {
@@ -66,7 +67,7 @@ router.post('/preview', async (req, res) => {
     code: 200,
     message: '操作成功',
     data: {
-      previewImg: 'http://localhost:5000/static/preview.jpg',
+      previewImg: `${config.HOST}/static/preview.jpg`,
     }
   })
 })
