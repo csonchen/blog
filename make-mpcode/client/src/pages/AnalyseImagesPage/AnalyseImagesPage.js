@@ -1,18 +1,16 @@
 import React from 'react'
-import { Table, Form, Col, Pagination, Spinner, DropdownButton, Dropdown } from 'react-bootstrap'
+import { Form, Col, DropdownButton, Dropdown } from 'react-bootstrap'
+import AutoTable from '../../components/AutoTable/AutoTable'
 import LoadingButton from '../../components/LoadingButton/LoadingButton'
 import { postData } from '../../services/request'
-import { range } from '../../tools/util'
 
 export default class AnalyseImagesPage extends React.Component {
-  PAGE_SIZE = 10
   originImgList = [] // 初始请求接口的列表数据
   state = {
     loading: false,
     imgList: [],
     currentList: [],
     currentPage: 1,
-    pages: [],
     filterTitle: '全部',
     operateLoading: false,
   }
@@ -24,12 +22,9 @@ export default class AnalyseImagesPage extends React.Component {
       const { list: imgList } = res.data
       this.originImgList = imgList
       const currentList = imgList.slice(0, 10)
-      const size = Math.ceil(imgList.length / this.PAGE_SIZE)
-      const pages = range(1, size)
       this.setState({
         imgList,
         currentList,
-        pages,
         loading: false,
         currentPage: 1,
         filterTitle: '全部'
@@ -48,17 +43,6 @@ export default class AnalyseImagesPage extends React.Component {
       window.open(file)
     })
   }
-  queryByPage = (e) => {
-    const pageNum = e.target.dataset.page
-    const { imgList } = this.state
-    const begin = (+pageNum - 1) * this.PAGE_SIZE
-    const end = begin + this.PAGE_SIZE
-    const currentList = imgList.slice(begin, end)
-    this.setState({
-      currentPage: +pageNum,
-      currentList,
-    })
-  }
   filterOptions = (e) => {
     const { status, title } = e.target.dataset
 
@@ -66,18 +50,21 @@ export default class AnalyseImagesPage extends React.Component {
 
     const filterList = status === "" ? this.originImgList : this.originImgList.filter(item => item.status === +status)
     const currentList = filterList.slice(0, 10)
-    const size = Math.ceil(filterList.length / this.PAGE_SIZE)
-    const pages = range(1, size)
     this.setState({
       filterTitle: title,
       imgList: filterList,
       currentList,
-      pages,
       currentPage: 1,
     })
   }
+  setCurrentList = (currentList, currentPage) => {
+    this.setState({
+      currentPage,
+      currentList,
+    })
+  }
   render() {
-    const { loading, operateLoading } = this.state
+    const { loading, operateLoading, imgList, currentPage } = this.state
     return (
       <div>
         <Form.Group>
@@ -104,45 +91,21 @@ export default class AnalyseImagesPage extends React.Component {
             </Col>
           </Form.Row>
         </Form.Group>
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>序号</th>
-              <th>图片</th>
-              <th>路径</th>
+        <AutoTable
+          heads={['序号', '图片', '路径']}
+          loading={loading}
+          tableList={imgList}
+          currentPage={currentPage}
+          setCurrentList={this.setCurrentList}
+        >
+          {this.state.currentList.map((item, index) => (
+            <tr className={item.status === 0 ? 'table-warning' : ''} key={index}>
+              <td>{item.id}</td>
+              <td>{item.image}</td>
+              <td>{item.existPath}</td>
             </tr>
-          </thead>
-          <tbody>
-            {this.state.loading ?
-            <tr>
-              <td colSpan="3" className="text-center">
-                <Spinner animation="border" variant="primary" role="status">
-                  <span className="sr-only">Loading...</span>
-                </Spinner>
-              </td>
-            </tr>
-            :
-            this.state.currentList.map((item, index) => (
-              <tr key={index}>
-                <td>{item.id}</td>
-                <td>{item.image}</td>
-                <td>{item.existPath}</td>
-              </tr>
-            ))
-            }
-          </tbody>
-        </Table>
-        <div className="flex-end">
-          <Pagination onClick={this.queryByPage}>
-            {this.state.pages.map((page, index) => (
-            <Pagination.Item
-              data-page={page}
-              key={index} 
-              active={this.state.currentPage === page}
-            >{page}</Pagination.Item>
-            ))}
-          </Pagination>
-        </div>
+          ))}
+        </AutoTable>
       </div>
     )
   }

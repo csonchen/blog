@@ -45,6 +45,7 @@ export default class AnalyseComponentsPage extends React.Component {
               <Form.Control type="text" placeholder="" />
             </Col>
           </Form.Row>
+          
           <div className="flex-end">
             <LoadingButton className="mr10" loading={loading} onClick={this.analyseComponents}>开始分析</LoadingButton>
             <LoadingButton loading={operateLoading}>导出</LoadingButton>
@@ -58,7 +59,7 @@ export default class AnalyseComponentsPage extends React.Component {
           setCurrentList={this.setCurrentList}
         >
           {this.state.currentList.map((item, index) => (
-            <tr key={index}>
+            <tr className={item.used === 'false' ? 'table-warning' : ''} key={index}>
               <td>{item.id}</td>
               <td>{item.page}</td>
               <td>{item.directory}</td>

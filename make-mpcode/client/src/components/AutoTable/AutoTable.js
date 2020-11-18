@@ -21,7 +21,7 @@ const AutoTable = (props) => {
   }
   return (
     <>
-      <Table striped bordered hover>
+      <Table bordered hover>
         {(heads && heads.length > 0) &&
         <thead>
           <tr>
