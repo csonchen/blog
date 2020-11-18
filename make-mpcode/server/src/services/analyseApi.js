@@ -1,6 +1,6 @@
 const path = require('path');
 const fs = require('fs');
-const { getAllFiles, listComponents, getFileJsonData } = require('../tools/fileUtils');
+const { getAllFiles, listComponents, getFileJsonData, getFilterFiles } = require('../tools/fileUtils');
 const { isWxmlImportComponent } = require('../tools/parseUtils');
 
 /**
@@ -66,6 +66,9 @@ const analyseComponents = (compDirSrc) => {
 
   if (allFiles.length === 0) return
 
+  const filterFiles = getFilterFiles(allFiles, ['wxml', 'json'])
+
+  let idx = 1
   // 组装导出对象数组数据
   const pageWithComponents = filterFiles.reduce((acc, { jsonFile }) => {
     const current = path.basename(jsonFile, '.json')
@@ -83,6 +86,7 @@ const analyseComponents = (compDirSrc) => {
       const childs = components.reduce((childAcc, { name, path }) => {
         const used = isWxmlImportComponent(fileJsonData, name)
         return [...childAcc, {
+          id: idx++,
           page: current,
           directory: currentDir,
           component: name,

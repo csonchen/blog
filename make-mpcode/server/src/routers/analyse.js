@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
-const { analyseImages } = require('../services/analyseApi');
+const { analyseImages, analyseComponents } = require('../services/analyseApi');
 const ObjectsToCsv = require('objects-to-csv');
 const { image, component } = require('../config');
 
