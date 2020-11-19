@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 /**
  * 判断当前页面是否引入该组件标签
  * @param {*} pageJsonData 
@@ -24,6 +26,29 @@ const isWxmlImportComponent = (pageJsonData, tagName) => {
   return false
 }
 
+/**
+ * 更换配置文件的环境
+ * @param {*} filePath 更换配置文件的路径
+ * @param {*} env 环境变量字符串
+ */
+const replaceEnvironment = (filePath, env) => {
+  const fileContent = fs.readFileSync(filePath, 'utf8')
+  const resFileContent = fileContent.replace(/(const appEnv = ENV\.[\w]+;)/, `const appEnv = ENV.${env};`)
+  fs.writeFileSync(filePath, resFileContent)
+  return true
+}
+
+/**
+ * 更换配置文件的版本号
+ * @param {*} filePath 更换配置文件的路径
+ * @param {*} version 小程序发版号
+ */
+const replaceVersion = (filePath, version) => {
+
+}
+
 module.exports = {
   isWxmlImportComponent,
+  replaceEnvironment,
+  replaceVersion,
 }
