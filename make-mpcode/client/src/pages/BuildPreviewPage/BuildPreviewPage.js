@@ -13,16 +13,18 @@ export default class BuildPreviewPage extends React.Component {
     previewCodeImg: '',
     selectPages: [],
     scenes: [],
+    envs: [],
   }
   componentDidMount() {
     this.fetchAllPages()
   }
   fetchAllPages = () => {
     postData('/api/build/getAppInfo').then(res => {
-      const { pages, scenes } = res.data
+      const { pages, scenes, envs } = res.data
       this.setState({
         selectPages: pages,
         scenes,
+        envs,
       })
     })
   }
@@ -61,10 +63,16 @@ export default class BuildPreviewPage extends React.Component {
           <Form.Row className="form-item justify-content-md-center">
             <Form.Label column lg={1}>启动环境</Form.Label>
             <Col className="flex-middle">
-              <Form.Check inline type="radio" label="开发" name="buildEnv" id="env-dev" />
-              <Form.Check inline type="radio" label="测试" name="buildEnv" id="env-test" />
-              <Form.Check inline type="radio" label="预发布" name="buildEnv" id="env-uat" />
-              <Form.Check inline type="radio" label="生产" name="buildEnv" id="env-prod" />
+              {this.state.envs.map((env, index) => (
+              <Form.Check 
+                key={index} 
+                inline 
+                type="radio" 
+                label={env.label} 
+                name="buildEnv" 
+                id={`env-${env.id}`} 
+              />
+              ))}
             </Col>
           </Form.Row>
           <Form.Row className="form-item">
